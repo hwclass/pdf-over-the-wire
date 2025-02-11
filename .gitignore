@@ -1,0 +1,13 @@
+node_modules
+
+# Ignore AWS SAM build artifacts
+.aws-sam/
+api/.aws-sam/
+
+# Ignore SAM dependency layers
+*.egg-info/
+__pycache__/
+.env
+venv/
+deps/
+api/deps/

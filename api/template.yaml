@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Description: PDF Processing Lambda with AWS SAM
+
+Resources:
+    PDFOverTheWireFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: PdfHandler
+            Handler: app.lambda_handler
+            Runtime: python3.11
+            CodeUri: ./upload
+            MemorySize: 512
+            Timeout: 30
+            Policies:
+                - AWSLambdaBasicExecutionRole
+                - AmazonS3FullAccess # ✅ Grant Full S3 Permissions
+            Environment:
+                Variables:
+                    BUCKET_NAME: pdf-upload-bucket
+                    S3_ENDPOINT: http://host.docker.internal:4566
+            Events:
+                PdfUploadApi:
+                    Type: Api
+                    Properties:
+                        Path: /upload
+                        Method: POST
+                        Cors:
+                            AllowMethods: "'OPTIONS, POST'"
+                            AllowHeaders: "'Content-Type'"
+                            AllowOrigin: "'*'"
+                CorsOptions:
+                    Type: Api
+                    Properties:
+                        Path: /upload
+                        Method: OPTIONS
+                        RestApiId: !Ref ServerlessRestApi
+                        Integration:
+                            Type: MOCK
+                            RequestTemplates:
+                                application/json: '{ "statusCode": 200 }'
+                        ResponseParameters:
+                            Method.Response.Header.Access-Control-Allow-Methods: "'OPTIONS, POST'"
+                            Method.Response.Header.Access-Control-Allow-Headers: "'Content-Type'"
+                            Method.Response.Header.Access-Control-Allow-Origin: "'*'"
+                        MethodResponses:
+                            - StatusCode: 200
+                              ResponseParameters:
+                                  Method.Response.Header.Access-Control-Allow-Methods: true
+                                  Method.Response.Header.Access-Control-Allow-Headers: true
+                                  Method.Response.Header.Access-Control-Allow-Origin: true
+
+    PdfBucket:
+        Type: AWS::S3::Bucket
+        Properties:
+            BucketName: pdf-upload-bucket
+
+Outputs:
+    ApiGatewayEndpoint:
+        Description: "API Gateway endpoint URL"
+        Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/upload"
+
+Globals:
+    Api:
+        BinaryMediaTypes:
+            - "application/pdf"
