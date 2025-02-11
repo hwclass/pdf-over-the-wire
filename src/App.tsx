@@ -74,7 +74,7 @@ function App() {
 
       const response = await fetch("http://127.0.0.1:3000/upload", {
         method: "POST",
-        body: file, // ✅ Send raw file like --data-binary "@Test_Invoice.pdf"
+        body: file, // ✅ Send raw file like --data-binary "@Test_Invoice.pdf" in a curl command
         headers: {
           "Content-Type": "application/pdf", // ✅ Ensure correct Content-Type
         },
@@ -133,24 +133,6 @@ function App() {
                   : "Failed to upload PDF. Please try again."}
               </Alert>
             )}
-
-            {/* 🛒 Inventory Data Table */}
-            <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
-              Current Inventory Data
-            </Typography>
-            <Box sx={{ height: 400, width: "100%", mb: 4 }}>
-              <DataGridPro rows={rows} columns={columns} pagination checkboxSelection disableRowSelectionOnClick />
-            </Box>
-          </Paper>
-
-          {/* 📄 PDF Preview */}
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              PDF Preview
-            </Typography>
-            <PDFViewer style={{ width: "100%", height: "800px" }}>
-              <SamplePDF />
-            </PDFViewer>
           </Paper>
         </Box>
       </Box>

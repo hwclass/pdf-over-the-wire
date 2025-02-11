@@ -2,10 +2,17 @@
 
 ## Prerequisites
 
+Make sure you have the following installed:
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [AWS CLI](https://aws.amazon.com/cli/)
+- [LocalStack](https://localstack.cloud/docs/get-started/)
+
+## Development
 ### Start LocalStack
 
 ```sh
-docker run --rm -it -p 127.0.0.1:4566:4566 -p 127.0.0.1:4510-4559:4510-4559 -v /var/run/docker.sock:/var/run/docker.sock localstack/localstack
+docker run --rm -it -p 4566:4566 localstack/localstack
 ```
 
 ### Create the local S3 bucket (pdf-upload-bucket)
@@ -52,6 +59,20 @@ curl -X POST "http://127.0.0.1:3000/upload" \
 
 ```sh
 brew install diff-pdf
+```
+
+### Compare the original PDF with the downloaded PDF
+
+```sh
+diff-pdf api/Test_Invoice.pdf api/9fa9f0f2-eb3d-44fe-a919-f8bbe3189ba0.pdf --view
+```
+
+## Upload from the frontend
+
+### Run the UI
+
+```sh
+npm run dev # go to http://localhost:5176 & upload a PDF file & click on Upload PDF
 ```
 
 ### Compare the original PDF with the downloaded PDF
