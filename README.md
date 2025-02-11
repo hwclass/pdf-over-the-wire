@@ -1,5 +1,9 @@
 # PDF over the wire with Lambda and LocalStack
 
+## Aim of the Proof of Concept
+
+This proof of concept demonstrates how to upload, store, and retrieve PDF files using AWS Lambda and LocalStack. The repository provides a local development environment that simulates AWS services, allowing for testing and development without incurring costs or needing an internet connection.
+
 ## Prerequisites
 
 Make sure you have the following installed:
@@ -8,7 +12,8 @@ Make sure you have the following installed:
 - [AWS CLI](https://aws.amazon.com/cli/)
 - [LocalStack](https://localstack.cloud/docs/get-started/)
 
-## Development
+## Commands
+
 ### Start LocalStack
 
 ```sh
@@ -49,6 +54,7 @@ open <REQUEST-ID>.pdf
 ```
 
 ### Test uploading the PDF to the local S3 bucket (pdf-upload-bucket)
+
 ```sh
 curl -X POST "http://127.0.0.1:3000/upload" \
      -H "Content-Type: application/pdf" \
