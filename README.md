@@ -92,7 +92,19 @@ diff-pdf api/Test_Invoice.pdf api/9fa9f0f2-eb3d-44fe-a919-f8bbe3189ba0.pdf --vie
 * Compile and run the lambda function locally (under /convert directory)
 * Upload a PDF file to the local S3 bucket (pdf-upload-bucket)
 * Run the command for converting the PDF to PDF/A-3 (Includes output indent, mark info and adding metadata - embedding fonts are excluded now due to the GhostScript complexity)
+
+```sh
+curl -X POST "http://127.0.0.1:3000/convert" \
+     -H "Content-Type: application/json" \
+     -d '{"file_key": "<PDF-ID>.pdf"}'
+```
+
 * Download the PDF file from the local S3 bucket (pdf-upload-bucket - it should be named as converted-<PDF-ID>.pdf)
+
+```sh
+aws --endpoint-url=http://localhost:4566 s3 cp s3://pdf-upload-bucket/converted-<PDF-ID>.pdf ./converted-<PDF-ID>.pdf
+```
+
 * Compare the original PDF with the downloaded PDF (Todo)
 
 ## Notes
