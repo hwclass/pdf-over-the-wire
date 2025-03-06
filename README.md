@@ -86,3 +86,15 @@ npm run dev # go to http://localhost:5176 & upload a PDF file & click on Upload 
 ```sh
 diff-pdf api/Test_Invoice.pdf api/9fa9f0f2-eb3d-44fe-a919-f8bbe3189ba0.pdf --view
 ```
+
+## For PDF/A-3 Convert Flow
+
+* Compile and run the lambda function locally (under /convert directory)
+* Upload a PDF file to the local S3 bucket (pdf-upload-bucket)
+* Run the command for converting the PDF to PDF/A-3 (Includes output indent, mark info and adding metadata - embedding fonts are excluded now due to the GhostScript complexity)
+* Download the PDF file from the local S3 bucket (pdf-upload-bucket - it should be named as converted-<PDF-ID>.pdf)
+* Compare the original PDF with the downloaded PDF (Todo)
+
+## Notes
+
+* You can find the profile files within the /api/convert directory (sRGB_v4_ICC_preference.icc)

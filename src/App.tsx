@@ -72,6 +72,7 @@ function App() {
       const formData = new FormData();
       formData.append("file", file);
 
+      // Upload the PDF without validation
       const response = await fetch("http://127.0.0.1:3000/upload", {
         method: "POST",
         body: file, // ✅ Send raw file like --data-binary "@Test_Invoice.pdf" in a curl command
@@ -80,14 +81,48 @@ function App() {
         },
       });
 
-      if (!response.ok) throw new Error("Upload failed");
-
       const result = await response.json();
-      console.log("Upload Success:", result);
+      alert(`PDF uploaded successfully! File key: ${result.file_key}`);
       setUploadStatus("success");
-      alert(`Upload Success! File URL: ${result.file_url}`);
     } catch (error) {
       console.error("Upload Error:", error);
+      setUploadStatus("error");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Handle Validate / Convert PDF
+  const handleValidateConvert = async () => {
+    if (!file) {
+      alert("Please select a PDF file before validating.");
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadStatus(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Send the PDF binary to the /convert endpoint
+      const response = await fetch("http://127.0.0.1:3000/convert", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.status === "VALID") {
+        alert("PDF is already compliant with PDF/A-3.");
+      } else {
+        alert(`PDF converted to PDF/A-3! Converted file key: ${result.converted_file_key}`);
+      }
+
+      setUploadStatus("success");
+    } catch (error) {
+      console.error("Validation/Conversion Error:", error);
       setUploadStatus("error");
     } finally {
       setIsUploading(false);
@@ -121,7 +156,18 @@ function App() {
                 onClick={handleUpload}
                 startIcon={<Upload />}
               >
-                {isUploading ? "Uploading PDF..." : "Upload PDF"}
+                Upload PDF
+              </Button>
+            </Box>
+
+            <Box sx={{ mb: 3 }}>
+              <Button
+                variant="contained"
+                disabled={isUploading}
+                onClick={handleValidateConvert}
+                startIcon={<Upload />}
+              >
+                Validate / Convert PDF
               </Button>
             </Box>
 
@@ -129,8 +175,8 @@ function App() {
             {uploadStatus && (
               <Alert severity={uploadStatus === "success" ? "success" : "error"} sx={{ mb: 3 }}>
                 {uploadStatus === "success"
-                  ? "PDF successfully uploaded!"
-                  : "Failed to upload PDF. Please try again."}
+                  ? "Operation completed successfully!"
+                  : "Operation failed. Please try again."}
               </Alert>
             )}
           </Paper>

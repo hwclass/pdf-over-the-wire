@@ -30,7 +30,7 @@ Resources:
                             AllowMethods: "'OPTIONS, POST'"
                             AllowHeaders: "'Content-Type'"
                             AllowOrigin: "'*'"
-                CorsOptions:
+                UploadCorsOptions:
                     Type: Api
                     Properties:
                         Path: /upload
@@ -41,15 +41,75 @@ Resources:
                             RequestTemplates:
                                 application/json: '{ "statusCode": 200 }'
                         ResponseParameters:
-                            Method.Response.Header.Access-Control-Allow-Methods: "'OPTIONS, POST'"
-                            Method.Response.Header.Access-Control-Allow-Headers: "'Content-Type'"
-                            Method.Response.Header.Access-Control-Allow-Origin: "'*'"
+                            Method:
+                                Response:
+                                    Header:
+                                        Access-Control-Allow-Methods: "'OPTIONS, POST'"
+                                        Access-Control-Allow-Headers: "'Content-Type'"
+                                        Access-Control-Allow-Origin: "'*'"
                         MethodResponses:
                             - StatusCode: 200
                               ResponseParameters:
-                                  Method.Response.Header.Access-Control-Allow-Methods: true
-                                  Method.Response.Header.Access-Control-Allow-Headers: true
-                                  Method.Response.Header.Access-Control-Allow-Origin: true
+                                Method:
+                                    Response:
+                                        Header:
+                                            Access-Control-Allow-Methods: true
+                                            Access-Control-Allow-Headers: true
+                                            Access-Control-Allow-Origin: true
+
+    PDFValidationAndConversionFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: PdfHandler
+            Handler: app.lambda_handler
+            Runtime: python3.11
+            CodeUri: ./convert
+            MemorySize: 512
+            Timeout: 30
+            Policies:
+                - AWSLambdaBasicExecutionRole
+                - AmazonS3FullAccess # ✅ Grant Full S3 Permissions
+            Environment:
+                Variables:
+                    BUCKET_NAME: pdf-upload-bucket
+                    S3_ENDPOINT: http://host.docker.internal:4566
+            Events:
+                PdfUploadApi:
+                    Type: Api
+                    Properties:
+                        Path: /convert
+                        Method: POST
+                        Cors:
+                            AllowMethods: "'OPTIONS, POST'"
+                            AllowHeaders: "'Content-Type'"
+                            AllowOrigin: "'*'"
+                UploadCorsOptions:
+                    Type: Api
+                    Properties:
+                        Path: /convert
+                        Method: OPTIONS
+                        RestApiId: !Ref ServerlessRestApi
+                        Integration:
+                            Type: MOCK
+                            RequestTemplates:
+                                application/json: '{ "statusCode": 200 }'
+                        ResponseParameters:
+                            Method:
+                                Response:
+                                    Header:
+                                        Access-Control-Allow-Methods: "'OPTIONS, POST'"
+                                        Access-Control-Allow-Headers: "'Content-Type'"
+                                        Access-Control-Allow-Origin: "'*'"
+                        MethodResponses:
+                            - StatusCode: 200
+                              ResponseParameters:
+                                Method:
+                                    Response:
+                                        Header:
+                                            Access-Control-Allow-Methods: true
+                                            Access-Control-Allow-Headers: true
+                                            Access-Control-Allow-Origin: true
+
 
     PdfBucket:
         Type: AWS::S3::Bucket
@@ -57,9 +117,13 @@ Resources:
             BucketName: pdf-upload-bucket
 
 Outputs:
-    ApiGatewayEndpoint:
-        Description: "API Gateway endpoint URL"
+    ApiGatewayEndpointUpload:
+        Description: "API Gateway endpoint URL for upload"
         Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/upload"
+
+    ApiGatewayEndpointConvert:
+        Description: "API Gateway endpoint URL for validation and conversion"
+        Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/convert"
 
 Globals:
     Api:
